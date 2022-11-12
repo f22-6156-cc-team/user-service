@@ -12,7 +12,7 @@ This is a simple Flask based user microservice.
   - Python (3.9 or greater)
   - MySQL Community Server
 - Open the project in PyCharm and create a new virtual environment for the project.
-- In the root of the directory, execute the command ```pip install -r requirements.txt```. This should install the necessary Python requirements.
+- In the root of the directory, run ```pip install -r requirements.txt``` to install the necessary Python requirements.
 - Connecting to database:
   - Go to ```./application.py``` and right click to ```More Run/Debug > Modify Run Configuration```.
   - Set the environment variables ```DBUSER=<dbusername>;DBPW=<dbpassword>;DBHOST=localhost;DBNAME=user_service```.
@@ -22,6 +22,7 @@ This is a simple Flask based user microservice.
 - Run ```sudo yum update``` to update all the packages
 - Run ```sudo yum install git```to install git
 - ```git clone https://github.com/f22-6156-cc-team/user-service.git``` to the EC2 instance
+- Run ```pip3 install -r requirements.txt``` to install necessary Python requirements.
 - Connecting to database deployed in RDS instance:
   - Run ```export DBUSER="<dbusername>" DBPW="<dbpassword>" DBHOST="database-1.cpkam03owo3l.us-east-1.rds.amazonaws.com" DBNAME="user_service"``` to set environment variables
 
