@@ -46,18 +46,27 @@ def user_by_user_id(uid):
                 return rsp
             elif request.method == "POST":
                 user_info = request.get_json()
-                uqm.add_user_by_user_id(user_id=uid, user_info=user_info)
-                created_user = get_user_by_user_id(uid)
-                created_user_json = serialize(created_user, "User")
-                rsp = Response(json.dumps(created_user_json), status=200, content_type="application.json")
-                return rsp
+                if get_user_by_user_id(uid):
+                    rsp = Response("User with user_id {} has already existed".format(uid),
+                                   status=409, content_type="text/plain")
+                    return rsp
+                else:
+                    uqm.add_user_by_user_id(user_id=uid, user_info=user_info)
+                    created_user = get_user_by_user_id(uid)
+                    created_user_json = serialize(created_user, "User")
+                    rsp = Response(json.dumps(created_user_json), status=200, content_type="application.json")
+                    return rsp
             elif request.method == "PUT":
                 user_info = request.get_json()
-                uqm.update_user_by_user_id(user_id=uid, user_info=user_info)
-                updated_user = get_user_by_user_id(uid)
-                updated_user_json = serialize(updated_user, "User")
-                rsp = Response(json.dumps(updated_user_json), status=200, content_type="application.json")
-                return rsp
+                if get_user_by_user_id(uid):
+                    uqm.update_user_by_user_id(user_id=uid, user_info=user_info)
+                    updated_user = get_user_by_user_id(uid)
+                    updated_user_json = serialize(updated_user, "User")
+                    rsp = Response(json.dumps(updated_user_json), status=200, content_type="application.json")
+                    return rsp
+                else:
+                    rsp = Response("User Not Found", status=404, content_type="text/plain")
+                    return rsp
             elif request.method == "DELETE":
                 delete_user = get_user_by_user_id(uid)
                 if delete_user:
@@ -104,7 +113,7 @@ def personal_preference_by_user_id(uid):
                     else:
                         existing_id = user.personalPreferenceId
                         rsp = Response("User has already had personal preference with id {}".format(existing_id),
-                                       status=405, content_type="text/plain")
+                                       status=409, content_type="text/plain")
                         return rsp
                 elif request.method == "PUT":
                     personal_preference_info = request.get_json()
@@ -157,7 +166,7 @@ def roommate_requirement_by_user_id(uid):
                     else:
                         existing_id = user.roommateRequirementId
                         rsp = Response("User has already had roommate requirement with id {}".format(existing_id),
-                                       status=405, content_type="text/plain")
+                                       status=409, content_type="text/plain")
                         return rsp
                 elif request.method == "PUT":
                     roommate_requirement_info = request.get_json()
