@@ -90,48 +90,52 @@ def user_by_user_id(uid):
 @app.route("/api/user/<uid>/personal_preference", methods=["GET", "POST", "PUT"])
 def personal_preference_by_user_id(uid):
     try:
-        user = UserQueryModel().get_user_by_user_id(uid)
-        if user:
-            with PersonalPreferenceQueryModel() as ppqm:
-                if request.method == "GET":
-                    personal_preference = ppqm.get_personal_preference_by_user_id(uid)
-                    personal_preference_json = serialize(personal_preference, "PersonalPreference")
-                    if personal_preference_json:
-                        rsp = Response(json.dumps(personal_preference_json), status=200,
-                                       content_type="application.json")
-                    else:
-                        rsp = Response("Personal Preference Not Found", status=404, content_type="text/plain")
-                    return rsp
-                elif request.method == "POST":
-                    personal_preference_info = request.get_json()
-                    if user.personalPreferenceId is None:
-                        ppqm.add_personal_preference_by_user_id(uid, personal_preference_info)
-                        created_personal_preference = ppqm.get_personal_preference_by_user_id(uid)
-                        update_user = {"personalPreferenceId": created_personal_preference.personalPreferenceId}
-                        UserQueryModel().update_user_by_user_id(uid, update_user)
-                        created_personal_preference_json = serialize(created_personal_preference,
-                                                                     "PersonalPreference")
-                        rsp = Response(json.dumps(created_personal_preference_json), status=200,
-                                       content_type="application.json")
+        try:
+            user = UserQueryModel().get_user_by_user_id(uid)
+            if user:
+                with PersonalPreferenceQueryModel() as ppqm:
+                    if request.method == "GET":
+                        personal_preference = ppqm.get_personal_preference_by_user_id(uid)
+                        personal_preference_json = serialize(personal_preference, "PersonalPreference")
+                        if personal_preference_json:
+                            rsp = Response(json.dumps(personal_preference_json), status=200,
+                                           content_type="application.json")
+                        else:
+                            rsp = Response("Personal Preference Not Found", status=404, content_type="text/plain")
                         return rsp
-                    else:
-                        existing_id = user.personalPreferenceId
-                        rsp = Response("User has already had personal preference with id {}".format(existing_id),
-                                       status=409, content_type="text/plain")
-                        return rsp
-                elif request.method == "PUT":
-                    personal_preference_info = request.get_json()
-                    if user.personalPreferenceId is not None:
-                        ppqm.update_personal_preference_by_user_id(uid, personal_preference_info)
-                        updated_personal_preference = ppqm.get_personal_preference_by_user_id(uid)
-                        updated_personal_preference_json = serialize(updated_personal_preference, "PersonalPreference")
-                        rsp = Response(json.dumps(updated_personal_preference_json), status=200,
-                                       content_type="application.json")
-                        return rsp
-                    else:
-                        rsp = Response("Personal Preference Not Found", status=404, content_type="text/plain")
-                        return rsp
-        else:
+                    elif request.method == "POST":
+                        personal_preference_info = request.get_json()
+                        if user.personalPreferenceId is None:
+                            ppqm.add_personal_preference_by_user_id(uid, personal_preference_info)
+                            created_personal_preference = ppqm.get_personal_preference_by_user_id(uid)
+                            update_user = {"personalPreferenceId": created_personal_preference.personalPreferenceId}
+                            UserQueryModel().update_user_by_user_id(uid, update_user)
+                            created_personal_preference_json = serialize(created_personal_preference,
+                                                                         "PersonalPreference")
+                            rsp = Response(json.dumps(created_personal_preference_json), status=200,
+                                           content_type="application.json")
+                            return rsp
+                        else:
+                            existing_id = user.personalPreferenceId
+                            rsp = Response("User has already had personal preference with id {}".format(existing_id),
+                                           status=409, content_type="text/plain")
+                            return rsp
+                    elif request.method == "PUT":
+                        personal_preference_info = request.get_json()
+                        if user.personalPreferenceId is not None:
+                            ppqm.update_personal_preference_by_user_id(uid, personal_preference_info)
+                            updated_personal_preference = ppqm.get_personal_preference_by_user_id(uid)
+                            updated_personal_preference_json = serialize(updated_personal_preference, "PersonalPreference")
+                            rsp = Response(json.dumps(updated_personal_preference_json), status=200,
+                                           content_type="application.json")
+                            return rsp
+                        else:
+                            rsp = Response("Personal Preference Not Found", status=404, content_type="text/plain")
+                            return rsp
+            else:
+                rsp = Response("User Not Found", status=404, content_type="text/plain")
+                return rsp
+        except Exception as e:
             rsp = Response("User Not Found", status=404, content_type="text/plain")
             return rsp
     except Exception as e:
@@ -143,49 +147,53 @@ def personal_preference_by_user_id(uid):
 @app.route("/api/user/<uid>/roommate_requirement", methods=["GET", "POST", "PUT"])
 def roommate_requirement_by_user_id(uid):
     try:
-        user = UserQueryModel().get_user_by_user_id(uid)
-        if user:
-            with RoommateRequirementQueryModel() as rrqm:
-                if request.method == "GET":
-                    roommate_requirement = rrqm.get_roommate_requirement_by_user_id(uid)
-                    roommate_requirement_json = serialize(roommate_requirement, "RoommateRequirement")
-                    if roommate_requirement_json:
-                        rsp = Response(json.dumps(roommate_requirement_json), status=200,
-                                       content_type="application.json")
-                    else:
-                        rsp = Response("Roommate Requirement Not Found", status=404, content_type="text/plain")
-                    return rsp
-                elif request.method == "POST":
-                    roommate_requirement_info = request.get_json()
-                    if user.roommateRequirementId is None:
-                        rrqm.add_roommate_requirement_by_user_id(uid, roommate_requirement_info)
-                        created_roommate_requirement = rrqm.get_roommate_requirement_by_user_id(uid)
-                        update_user = {"roommateRequirementId": created_roommate_requirement.roommateRequirementId}
-                        UserQueryModel().update_user_by_user_id(uid, update_user)
-                        created_roommate_requirement_json = serialize(created_roommate_requirement,
-                                                                      "RoommateRequirement")
-                        rsp = Response(json.dumps(created_roommate_requirement_json), status=200,
-                                       content_type="application.json")
+        try:
+            user = UserQueryModel().get_user_by_user_id(uid)
+            if user:
+                with RoommateRequirementQueryModel() as rrqm:
+                    if request.method == "GET":
+                        roommate_requirement = rrqm.get_roommate_requirement_by_user_id(uid)
+                        roommate_requirement_json = serialize(roommate_requirement, "RoommateRequirement")
+                        if roommate_requirement_json:
+                            rsp = Response(json.dumps(roommate_requirement_json), status=200,
+                                           content_type="application.json")
+                        else:
+                            rsp = Response("Roommate Requirement Not Found", status=404, content_type="text/plain")
                         return rsp
-                    else:
-                        existing_id = user.roommateRequirementId
-                        rsp = Response("User has already had roommate requirement with id {}".format(existing_id),
-                                       status=409, content_type="text/plain")
-                        return rsp
-                elif request.method == "PUT":
-                    roommate_requirement_info = request.get_json()
-                    if user.roommateRequirementId is not None:
-                        rrqm.update_roommate_requirement_by_user_id(uid, roommate_requirement_info)
-                        updated_roommate_requirement = rrqm.get_roommate_requirement_by_user_id(uid)
-                        updated_roommate_requirement_json = serialize(updated_roommate_requirement,
-                                                                      "RoommateRequirement")
-                        rsp = Response(json.dumps(updated_roommate_requirement_json), status=200,
-                                       content_type="application.json")
-                        return rsp
-                    else:
-                        rsp = Response("Roommate Requirement Not Found", status=404, content_type="text/plain")
-                        return rsp
-        else:
+                    elif request.method == "POST":
+                        roommate_requirement_info = request.get_json()
+                        if user.roommateRequirementId is None:
+                            rrqm.add_roommate_requirement_by_user_id(uid, roommate_requirement_info)
+                            created_roommate_requirement = rrqm.get_roommate_requirement_by_user_id(uid)
+                            update_user = {"roommateRequirementId": created_roommate_requirement.roommateRequirementId}
+                            UserQueryModel().update_user_by_user_id(uid, update_user)
+                            created_roommate_requirement_json = serialize(created_roommate_requirement,
+                                                                          "RoommateRequirement")
+                            rsp = Response(json.dumps(created_roommate_requirement_json), status=200,
+                                           content_type="application.json")
+                            return rsp
+                        else:
+                            existing_id = user.roommateRequirementId
+                            rsp = Response("User has already had roommate requirement with id {}".format(existing_id),
+                                           status=409, content_type="text/plain")
+                            return rsp
+                    elif request.method == "PUT":
+                        roommate_requirement_info = request.get_json()
+                        if user.roommateRequirementId is not None:
+                            rrqm.update_roommate_requirement_by_user_id(uid, roommate_requirement_info)
+                            updated_roommate_requirement = rrqm.get_roommate_requirement_by_user_id(uid)
+                            updated_roommate_requirement_json = serialize(updated_roommate_requirement,
+                                                                          "RoommateRequirement")
+                            rsp = Response(json.dumps(updated_roommate_requirement_json), status=200,
+                                           content_type="application.json")
+                            return rsp
+                        else:
+                            rsp = Response("Roommate Requirement Not Found", status=404, content_type="text/plain")
+                            return rsp
+            else:
+                rsp = Response("User Not Found", status=404, content_type="text/plain")
+                return rsp
+        except Exception as e:
             rsp = Response("User Not Found", status=404, content_type="text/plain")
             return rsp
     except Exception as e:
