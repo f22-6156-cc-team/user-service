@@ -14,14 +14,15 @@ def _get_engine():
     return engine
 
 
-Base = sqlalchemy.orm.declarative_base(_get_engine())
+engine = _get_engine()
+Base = sqlalchemy.orm.declarative_base(engine)
 
 
 class BaseQueryModel:
     @staticmethod
     def _load_session():
         metadata = Base.metadata
-        Session = sqlalchemy.orm.sessionmaker(bind=_get_engine())
+        Session = sqlalchemy.orm.sessionmaker(bind=engine)
         session = Session()
         return session
 
