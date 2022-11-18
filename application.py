@@ -37,13 +37,17 @@ def user_by_user_id(uid):
     try:
         with UserQueryModel() as uqm:
             if request.method == "GET":
-                user = uqm.get_user_by_user_id(uid)
-                user_json = serialize(user, "User")
-                if user_json:
-                    rsp = Response(json.dumps(user_json), status=200, content_type="application.json")
-                else:
+                try:
+                    user = uqm.get_user_by_user_id(uid)
+                    user_json = serialize(user, "User")
+                    if user_json:
+                        rsp = Response(json.dumps(user_json), status=200, content_type="application.json")
+                    else:
+                        rsp = Response("User Not Found", status=404, content_type="text/plain")
+                    return rsp
+                except Exception as e:
                     rsp = Response("User Not Found", status=404, content_type="text/plain")
-                return rsp
+                    return rsp
             elif request.method == "POST":
                 user_info = request.get_json()
                 if get_user_by_user_id(uid):
