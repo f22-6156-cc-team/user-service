@@ -4,7 +4,7 @@ create database user_service;
 drop table if exists user_service.User;
 create table user_service.User
 (
-    userId                  int            not null,
+    userId                  varchar(256)   not null,
     isActive                boolean        not null,
     isAdmin                 boolean        not null,
     username                varchar(256)   not null,
@@ -19,7 +19,7 @@ create table user_service.User
 drop table if exists user_service.PersonalPreference;
 create table user_service.PersonalPreference
 (
-    userId                 int                                                 not null,
+    userId                 varchar(256)                                        not null,
     personalPreferenceId   int                                                 not null  auto_increment,
     gender                 enum('Female', 'Male', 'Others')                    not null,
     sleepingTime           enum('before 10PM', '10PM to 12PM', 'after 12PM')   not null,
@@ -39,7 +39,7 @@ create table user_service.PersonalPreference
 drop table if exists user_service.RoommateRequirement;
 create table user_service.RoommateRequirement
 (
-    userId                  int                                                 not null,
+    userId                  varchar(256)                                        not null,
     roommateRequirementId   int                                                 not null  auto_increment,
     gender                  enum('Female', 'Male', 'Others')                    not null,
     sleepingTime            enum('before 10PM', '10PM to 12PM', 'after 12PM')   not null,
