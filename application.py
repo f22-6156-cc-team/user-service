@@ -31,9 +31,6 @@ def get_all_users():
 
 @app.route("/api/user/<uid>", methods=["GET", "POST", "PUT", "DELETE"])
 def user_by_user_id(uid):
-    def get_user_by_user_id(uid):
-        return UserQueryModel().get_user_by_user_id(uid)
-
     try:
         with UserQueryModel() as uqm:
             if request.method == "GET":
@@ -43,44 +40,64 @@ def user_by_user_id(uid):
                     if user_json:
                         rsp = Response(json.dumps(user_json), status=200, content_type="application.json")
                     else:
-                        rsp = Response("User Not Found", status=404, content_type="text/plain")
+                        rsp = Response("User with userId {} not found".format(uid), status=404,
+                                       content_type="text/plain")
                     return rsp
                 except Exception as e:
-                    rsp = Response("User Not Found", status=404, content_type="text/plain")
+                    rsp = Response("User with userId {} not found".format(uid), status=404, content_type="text/plain")
                     return rsp
             elif request.method == "POST":
                 user_info = request.get_json()
-                if get_user_by_user_id(uid):
-                    rsp = Response("User with user_id {} has already existed".format(uid),
-                                   status=409, content_type="text/plain")
-                    return rsp
-                else:
+                try:
+                    user = uqm.get_user_by_user_id(uid)
+                    if user:
+                        rsp = Response("User with userId {} has already existed".format(uid),
+                                       status=409, content_type="text/plain")
+                        return rsp
+                    else:
+                        uqm.add_user_by_user_id(user_id=uid, user_info=user_info)
+                        created_user = uqm.get_user_by_user_id(uid)
+                        created_user_json = serialize(created_user, "User")
+                        rsp = Response(json.dumps(created_user_json), status=200, content_type="application.json")
+                        return rsp
+                except Exception as e:
                     uqm.add_user_by_user_id(user_id=uid, user_info=user_info)
-                    created_user = get_user_by_user_id(uid)
+                    created_user = uqm.get_user_by_user_id(uid)
                     created_user_json = serialize(created_user, "User")
                     rsp = Response(json.dumps(created_user_json), status=200, content_type="application.json")
                     return rsp
             elif request.method == "PUT":
                 user_info = request.get_json()
-                if get_user_by_user_id(uid):
-                    uqm.update_user_by_user_id(user_id=uid, user_info=user_info)
-                    updated_user = get_user_by_user_id(uid)
-                    updated_user_json = serialize(updated_user, "User")
-                    rsp = Response(json.dumps(updated_user_json), status=200, content_type="application.json")
-                    return rsp
-                else:
-                    rsp = Response("User Not Found", status=404, content_type="text/plain")
+                try:
+                    user = uqm.get_user_by_user_id(uid)
+                    if user:
+                        uqm.update_user_by_user_id(user_id=uid, user_info=user_info)
+                        updated_user = uqm.get_user_by_user_id(uid)
+                        updated_user_json = serialize(updated_user, "User")
+                        rsp = Response(json.dumps(updated_user_json), status=200, content_type="application.json")
+                        return rsp
+                    else:
+                        rsp = Response("User with userId {} not found".format(uid), status=404,
+                                       content_type="text/plain")
+                        return rsp
+                except Exception as e:
+                    rsp = Response("User with userId {} not found".format(uid), status=404, content_type="text/plain")
                     return rsp
             elif request.method == "DELETE":
-                delete_user = get_user_by_user_id(uid)
-                if delete_user:
-                    uqm.delete_user_by_user_id(uid)
-                    rsp = Response("User with user_id {} is successfully deleted.".format(uid), status=200,
-                                   content_type="application/json")
-                else:
-                    rsp = Response("User with user_id {} not found".format(uid), status=404,
-                                   content_type="text/plain")
-                return rsp
+                try:
+                    delete_user = uqm.get_user_by_user_id(uid)
+                    if delete_user:
+                        uqm.delete_user_by_user_id(uid)
+                        rsp = Response("User with userId {} is successfully deleted.".format(uid), status=200,
+                                       content_type="application/json")
+                        return rsp
+                    else:
+                        rsp = Response("User with userId {} not found".format(uid), status=404,
+                                       content_type="text/plain")
+                        return rsp
+                except Exception as e:
+                    rsp = Response("User with userId {} not found".format(uid), status=404, content_type="text/plain")
+                    return rsp
     except Exception as e:
         print(str(e))
         rsp = Response("Internal Server Error: " + str(e), status=500, content_type="text/plain")
