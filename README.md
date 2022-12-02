@@ -15,7 +15,7 @@ This is a simple Flask based user microservice.
 - In the root of the directory, run ```pip install -r requirements.txt``` to install the necessary Python requirements.
 - Connecting to database:
   - Go to ```./application.py``` and right click to ```More Run/Debug > Modify Run Configuration```.
-  - Set the environment variables ```DBUSER=<dbusername>;DBPW=<dbpassword>;DBHOST=localhost;DBNAME=user_service```.
+  - Set the environment variables ```DBUSER=<dbusername>;DBPW=<dbpassword>;DBHOST=localhost;DBNAME=user_service;SECRET_KEY=694ccc6b3fe51e399b581d78654ff6229bcac52305119def3ade27bd1152f534```.
 
 ### AWS EC2 Environment
 - Go to the created EC2 instance ```Userservice``` and connect to the console
@@ -24,7 +24,7 @@ This is a simple Flask based user microservice.
 - ```git clone https://github.com/f22-6156-cc-team/user-service.git``` to the EC2 instance
 - Run ```pip3 install -r requirements.txt``` to install necessary Python requirements.
 - Connecting to database deployed in RDS instance:
-  - Run ```export DBUSER="<dbusername>" DBPW="<dbpassword>" DBHOST="database-1.cpkam03owo3l.us-east-1.rds.amazonaws.com" DBNAME="user_service"``` to set environment variables
+  - Run ```export DBUSER="<dbusername>" DBPW="<dbpassword>" DBHOST="database-1.cpkam03owo3l.us-east-1.rds.amazonaws.com" DBNAME="user_service" SECRET_KEY="694ccc6b3fe51e399b581d78654ff6229bcac52305119def3ade27bd1152f534"``` to set environment variables
 
 ## Setting Up the Database
 ### Local MySQL Server

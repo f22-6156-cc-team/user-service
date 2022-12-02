@@ -1,18 +1,24 @@
 from flask import Flask, Response, request
 import json
+import os
 from models.User import UserQueryModel
 from models.PersonalPreference import PersonalPreferenceQueryModel
 from models.RoommateRequirement import RoommateRequirementQueryModel
 from flask_cors import CORS
+from flask_jwt_extended import (JWTManager, create_access_token, create_refresh_token, get_jwt_identity, jwt_required)
 
 
 # Create the Flask application object.
-app = Flask(__name__)
+application = Flask(__name__)
 
-CORS(app)
+CORS(application)
+application.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
+
+jwt = JWTManager(application)
 
 
-@app.route("/api/users", methods=["GET"])
+@application.route("/api/users", methods=["GET"])
+@jwt_required()
 def get_all_users():
     try:
         with UserQueryModel() as uqm:
@@ -29,7 +35,8 @@ def get_all_users():
         return rsp
 
 
-@app.route("/api/user/<uid>", methods=["GET", "POST", "PUT", "DELETE"])
+@application.route("/api/user/<uid>", methods=["GET", "POST", "PUT", "DELETE"])
+@jwt_required()
 def user_by_user_id(uid):
     try:
         with UserQueryModel() as uqm:
@@ -47,6 +54,11 @@ def user_by_user_id(uid):
                     rsp = Response("User with userId {} not found".format(uid), status=404, content_type="text/plain")
                     return rsp
             elif request.method == "POST":
+                current_uid = get_jwt_identity()
+                if current_uid != uid:
+                    rsp = Response("Inconsistent user", status=401,
+                                   content_type="text/plain")
+                    return rsp
                 user_info = request.get_json()
                 try:
                     user = uqm.get_user_by_user_id(uid)
@@ -67,6 +79,11 @@ def user_by_user_id(uid):
                     rsp = Response(json.dumps(created_user_json), status=200, content_type="application.json")
                     return rsp
             elif request.method == "PUT":
+                current_uid = get_jwt_identity()
+                if current_uid != uid:
+                    rsp = Response("Inconsistent user", status=401,
+                                   content_type="text/plain")
+                    return rsp
                 user_info = request.get_json()
                 try:
                     user = uqm.get_user_by_user_id(uid)
@@ -84,6 +101,11 @@ def user_by_user_id(uid):
                     rsp = Response("User with userId {} not found".format(uid), status=404, content_type="text/plain")
                     return rsp
             elif request.method == "DELETE":
+                current_uid = get_jwt_identity()
+                if current_uid != uid:
+                    rsp = Response("Inconsistent user", status=401,
+                                   content_type="text/plain")
+                    return rsp
                 try:
                     delete_user = uqm.get_user_by_user_id(uid)
                     if delete_user:
@@ -104,7 +126,8 @@ def user_by_user_id(uid):
         return rsp
 
 
-@app.route("/api/user/<uid>/personal_preference", methods=["GET", "POST", "PUT"])
+@application.route("/api/user/<uid>/personal_preference", methods=["GET", "POST", "PUT"])
+@jwt_required()
 def personal_preference_by_user_id(uid):
     try:
         try:
@@ -121,6 +144,11 @@ def personal_preference_by_user_id(uid):
                             rsp = Response("Personal Preference Not Found", status=404, content_type="text/plain")
                         return rsp
                     elif request.method == "POST":
+                        current_uid = get_jwt_identity()
+                        if current_uid != uid:
+                            rsp = Response("Inconsistent user", status=401,
+                                           content_type="text/plain")
+                            return rsp
                         personal_preference_info = request.get_json()
                         if user.personalPreferenceId is None:
                             ppqm.add_personal_preference_by_user_id(uid, personal_preference_info)
@@ -138,6 +166,11 @@ def personal_preference_by_user_id(uid):
                                            status=409, content_type="text/plain")
                             return rsp
                     elif request.method == "PUT":
+                        current_uid = get_jwt_identity()
+                        if current_uid != uid:
+                            rsp = Response("Inconsistent user", status=401,
+                                           content_type="text/plain")
+                            return rsp
                         personal_preference_info = request.get_json()
                         if user.personalPreferenceId is not None:
                             ppqm.update_personal_preference_by_user_id(uid, personal_preference_info)
@@ -161,7 +194,8 @@ def personal_preference_by_user_id(uid):
         return rsp
 
 
-@app.route("/api/user/<uid>/roommate_requirement", methods=["GET", "POST", "PUT"])
+@application.route("/api/user/<uid>/roommate_requirement", methods=["GET", "POST", "PUT"])
+@jwt_required()
 def roommate_requirement_by_user_id(uid):
     try:
         try:
@@ -178,6 +212,11 @@ def roommate_requirement_by_user_id(uid):
                             rsp = Response("Roommate Requirement Not Found", status=404, content_type="text/plain")
                         return rsp
                     elif request.method == "POST":
+                        current_uid = get_jwt_identity()
+                        if current_uid != uid:
+                            rsp = Response("Inconsistent user", status=401,
+                                           content_type="text/plain")
+                            return rsp
                         roommate_requirement_info = request.get_json()
                         if user.roommateRequirementId is None:
                             rrqm.add_roommate_requirement_by_user_id(uid, roommate_requirement_info)
@@ -195,6 +234,11 @@ def roommate_requirement_by_user_id(uid):
                                            status=409, content_type="text/plain")
                             return rsp
                     elif request.method == "PUT":
+                        current_uid = get_jwt_identity()
+                        if current_uid != uid:
+                            rsp = Response("Inconsistent user", status=401,
+                                           content_type="text/plain")
+                            return rsp
                         roommate_requirement_info = request.get_json()
                         if user.roommateRequirementId is not None:
                             rrqm.update_roommate_requirement_by_user_id(uid, roommate_requirement_info)
@@ -270,4 +314,4 @@ def serialize(model_object, model_type):
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5011)
+    application.run(host="0.0.0.0", port=5011)
