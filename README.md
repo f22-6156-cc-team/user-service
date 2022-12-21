@@ -4,6 +4,8 @@
 
 This is a simple Flask based user microservice.
 
+Demo: [Video Recording](https://youtu.be/IW4IQe46KFg), [Presentation Slides](https://docs.google.com/presentation/d/1HG4Q6YdYU-IPsPstCrpNPSzbTTi_HwuTJENlMxSjNfc/edit?usp=sharing)
+
 
 ## Environment Setup
 ### Local Environment
